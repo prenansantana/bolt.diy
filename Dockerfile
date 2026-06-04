@@ -62,8 +62,13 @@ ENV WRANGLER_SEND_METRICS=false \
 # Note: API keys should be provided at runtime via docker run -e or docker-compose
 # Example: docker run -e OPENAI_API_KEY=your_key_here ...
 
-# Install curl for healthchecks and copy bindings script
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
+# Install curl for healthchecks AND ca-certificates so workerd can
+# verify TLS when calling external APIs (OpenAI, Anthropic, etc).
+# Without ca-certificates the bookworm-slim base errors with:
+#   TLS peer's certificate is not trusted; reason = unable to get
+#   local issuer certificate
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      curl ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
 # Copy built files and scripts
