@@ -35,6 +35,11 @@ FROM build AS prod-deps
 # Keep only production deps for runtime
 RUN pnpm prune --prod --ignore-scripts
 
+# wrangler is in devDependencies but the runtime CMD calls
+# `wrangler pages dev` — re-install it after the prune so it survives.
+# See upstream issue stackblitz-labs/bolt.diy#2168.
+RUN pnpm add wrangler@^4.44.0 --ignore-scripts
+
 
 # ---- production stage ----
 FROM prod-deps AS bolt-ai-production
